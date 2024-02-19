@@ -12,6 +12,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TestLibrary"
         tools:targetApi="31">
+        <provider
+            android:name="com.example.appconnectsdk.SharedStorageProvider"
+            android:authorities="com.example.testlibrary.provider"
+            android:exported="true"
+        />
+        <!--            android:readPermission="${applicationId}.permission.APP_CONNECT_SDK"-->
+        <!--            android:writePermission="${applicationId}.permission.APP_CONNECT_SDK"    -->
         <activity
             android:name=".MainActivity"
             android:exported="true">

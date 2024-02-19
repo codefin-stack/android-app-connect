@@ -4,31 +4,40 @@ import android.content.ContentProvider
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.UriMatcher
-import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
-import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 
 class SharedStorageProvider : ContentProvider() {
 
-    companion object {
-        const val AUTHORITY = "group.com.lhbank.profita.shared"
-        const val PATH = "profita_sso_token"
-        const val CONTENT_URI_STRING = "content://$AUTHORITY/$PATH"
-        const val CONTENT_URI_CODE = 1
+    var authority = "";
+    var path = "";
+    var uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
+    val CONTENT_URI_CODE = 1
 
-        private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
-
-        init {
-            uriMatcher.addURI(AUTHORITY, PATH, CONTENT_URI_CODE)
-        }
-    }
+//    companion object {
+////        const val AUTHORITY = "group.com.lhbank.profita.shared"
+////        private const val AUTHORITY = BuildConfig.LIBRARY_PACKAGE_NAME + ".provider"
+////        AppConnectSDK.getContentProviderAuthority()
+////        private const val PATH = "app_connect"
+//        const val CONTENT_URI_CODE = 1
+//
+////        private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
+//
+////        init {
+////            uriMatcher.addURI(AUTHORITY, PATH, CONTENT_URI_CODE)
+////        }
+//    }
 
     private lateinit var databaseHelper: DatabaseHelper
 
     override fun onCreate(): Boolean {
+        /// Add URI Matcher
+        authority = "com.example.testlibrary.provider" //AppConnectConfig.getContentProviderAuthority()
+        path = "app_connect" //AppConnectConfig.getContentProviderPath()
+        uriMatcher.addURI(authority, path, CONTENT_URI_CODE)
+
+        /// Create Database
         databaseHelper = DatabaseHelper(context)
         return true
     }
@@ -68,13 +77,32 @@ class SharedStorageProvider : ContentProvider() {
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
+        if (values == null) {
+            throw AssertionError("Content value must not null")
+        }
+
+        if (!values.containsKey("message") || !values.containsKey("channel") || !values.containsKey("expiry")) {
+            throw AssertionError("Content value must contain message, channel and expiry")
+        }
+
+        val message = values.get("message") as String
+        val channel = values.get("channel") as String
+        val expiry = values.get("expiry") as Long
+
+        val insertValues = ContentValues().apply {
+            put(DatabaseHelper.COLUMN_CHANNEL, channel)
+            put(DatabaseHelper.COLUMN_MESSAGE, message)
+            put(DatabaseHelper.COLUMN_EXPIRY, expiry)
+        }
+
         val match = uriMatcher.match(uri)
         val db = databaseHelper.writableDatabase
         val id: Long
 
+
         when (match) {
             CONTENT_URI_CODE -> {
-                id = db.insert(DatabaseHelper.TABLE_NAME, null, values)
+                id = db.insertWithOnConflict(DatabaseHelper.TABLE_NAME, null, insertValues, SQLiteDatabase.CONFLICT_REPLACE)
                 if (id != -1L) {
                     context?.contentResolver?.notifyChange(uri, null)
                     return ContentUris.withAppendedId(uri, id)
@@ -138,31 +166,4 @@ class SharedStorageProvider : ContentProvider() {
         return rowsDeleted
     }
 
-    private class DatabaseHelper(context: Context?) :
-        SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-
-        companion object {
-            const val DATABASE_NAME = "my_database.db"
-            const val DATABASE_VERSION = 1
-            const val TABLE_NAME = "tokens"
-            const val COLUMN_ID = "_id"
-            const val COLUMN_TOKEN = "token"
-        }
-
-        override fun onCreate(db: SQLiteDatabase?) {
-            val createTableQuery = """
-                CREATE TABLE $TABLE_NAME (
-                    $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    $COLUMN_TOKEN TEXT
-                )
-            """.trimIndent()
-
-            db?.execSQL(createTableQuery)
-        }
-
-        override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
-            onCreate(db)
-        }
-    }
 }

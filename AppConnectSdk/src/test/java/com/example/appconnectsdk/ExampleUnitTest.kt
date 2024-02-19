@@ -14,4 +14,12 @@ class ExampleUnitTest {
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
     }
+
+    @Test
+    fun getGroupIdTest() {
+        val source = "source"
+        val destination = "destination"
+        val groupId = getGroupId(source, destination)
+        assertEquals("destination_source", groupId)
+    }
 }
