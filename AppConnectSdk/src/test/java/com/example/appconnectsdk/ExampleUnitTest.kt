@@ -17,9 +17,19 @@ class ExampleUnitTest {
 
     @Test
     fun getGroupIdTest() {
-        val source = "source"
-        val destination = "destination"
+        val source = "A.source"
+        val destination = "B.destination"
         val groupId = getGroupId(source, destination)
-        assertEquals("destination_source", groupId)
+        assertEquals("A.source_B.destination", groupId)
     }
+
+    @Test
+    fun getGroupIdTestMustSort() {
+        val source = "B.source"
+        val destination = "A.destination"
+        val groupId = getGroupId(source, destination)
+        assertEquals("A.destination_B.source", groupId)
+    }
+
+
 }

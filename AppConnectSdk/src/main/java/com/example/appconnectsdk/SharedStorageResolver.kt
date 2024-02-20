@@ -18,22 +18,22 @@ class SharedStorageResolver(context: Context) {
             put(Message.MESSAGE, message.message)
             put(Message.EXPIRY, message.expiry)
         }
-        Log.d("SharedStorageResolver", "[sendMessage] uri >>>>>> $uri")
-        Log.d("SharedStorageResolver", "[sendMessage] values >>>>>> $values")
-        Log.d("SharedStorageResolver", "[sendMessage] message.channel >>>>>> ${message.channel}")
-        Log.d("SharedStorageResolver", "[sendMessage] message.message >>>>>> ${message.message}")
-        Log.d("SharedStorageResolver", "[sendMessage] message.expiry >>>>>> ${message.expiry}")
+        Log.d("SharedStorageResolver", "[sendMessage] called with >>>>>>>> uri : $uri")
+        Log.d("SharedStorageResolver", "[sendMessage] values : $values")
+        Log.d("SharedStorageResolver", "[sendMessage] message.channel : ${message.channel}")
+        Log.d("SharedStorageResolver", "[sendMessage] message.message : ${message.message}")
+        Log.d("SharedStorageResolver", "[sendMessage] message.expiry : ${message.expiry}")
         return contentResolver.insert(uri, values)
     }
 
     fun readMessage(uri: Uri, channel: String): Message? {
+        Log.d("SharedStorageResolver", "[readMessage] called with >>>>>>>> uri: $uri , channel: $channel")
         val projection = arrayOf(Message.CHANNEL, Message.MESSAGE, Message.EXPIRY)
         val selection = "${Message.CHANNEL} = ?"
         val selectionArgs = arrayOf(channel)
 
-        Log.d("SharedStorageResolver", "[readMessage] uri >>>>>> $uri")
-        Log.d("SharedStorageResolver", "[readMessage] projection >>>>>> $projection")
-        Log.d("SharedStorageResolver", "[readMessage] selection >>>>>> $selection")
+        Log.d("SharedStorageResolver", "[readMessage] projection : $projection")
+        Log.d("SharedStorageResolver", "[readMessage] selection : $selection")
 
         val cursor: Cursor? = contentResolver.query(uri, projection, selection, selectionArgs, null)
         var message: Message? = null

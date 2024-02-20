@@ -7,6 +7,7 @@ android {
     namespace = "com.example.appconnectsdk"
     compileSdk = 34
 
+
     defaultConfig {
         minSdk = 31
 
@@ -34,11 +35,15 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+//    useLibrary("android.test.base") // for AndroidTestCase
+//    useLibrary("android.test.runner") // for ProviderTestCase2
+//    useLibrary("android.test.mock") // for MockContentProvider
 }
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
     testImplementation("junit:junit:4.13.2")

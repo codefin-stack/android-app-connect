@@ -11,11 +11,15 @@ fun getGroupId(source: String, destination: String): String {
     return array.joinToString("_")
 }
 
-fun getContentUri(authority: String, path: String = "app_connect"): Uri {
-    return Uri.parse("content://$authority/$path")
+fun getContentUri(authority: String, path: String?): Uri {
+    val defaultPath  = "app_connect"
+    return Uri.parse("content://$authority/${path ?: defaultPath}")
 }
 
-fun getChannel(groupId: String, type: String): String {
+enum class MessageType {
+    IN, OUT
+}
+fun getChannel(groupId: String, type: MessageType): String {
     return "${groupId}_${type}"
 }
 

@@ -9,9 +9,11 @@ import com.example.appconnectsdk.AppConnectSDK
 import com.example.appconnectsdk.ChannelConfiguration
 import com.example.appconnectsdk.ContentProviderConfig
 import com.example.appconnectsdk.getExpiry
+import kotlinx.coroutines.delay
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("MainActivity", "onCreate called")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -21,23 +23,26 @@ class MainActivity : AppCompatActivity() {
         val result = add(a, b);
         Log.d("MainActivity", "Result: $result")
 
-        AppConnectConfig.initialize(DefaultContentProviderConfig)
-        val u2pChannel = AppConnectSDK.createChannel(this, "com.example.testlibrary.provider", "com.example.testlibrary.provider", ChannelConfiguration(commitOnRead = false))
+        testSDK()
+    }
 
+    private fun testSDK() {
         try {
+            val u2pChannel = AppConnectSDK.createChannel(this, "com.unicorn.provider", "com.unicorn.provider", ChannelConfiguration(commitOnRead = false))
+
             u2pChannel.send("Hello Profita", getExpiry(minute = 30))
 
-            val p2uChannel = AppConnectSDK.createChannel(this, "com.example.testlibrary.provider", "com.example.testlibrary.provider", ChannelConfiguration(commitOnRead = false))
+            val p2uChannel = AppConnectSDK.createChannel(this, "com.unicorn.provider", "com.unicorn.provider", ChannelConfiguration(commitOnRead = false))
             var message = p2uChannel.read()
             println("Message: $message")
+
+
+            message = p2uChannel.read()
+            println("Message: $message")
+
             p2uChannel.commit()
         } catch (e: Exception) {
             Log.e("MainActivity", "Error: ${e.message}")
         }
     }
-}
-
-object DefaultContentProviderConfig : ContentProviderConfig {
-    override val contentProviderAuthority = "com.example.testlibrary.provider"
-    override val contentProviderPath = "messages"
 }

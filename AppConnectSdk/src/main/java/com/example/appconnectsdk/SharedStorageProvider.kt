@@ -1,42 +1,49 @@
 package com.example.appconnectsdk
 
+import android.content.ComponentName
 import android.content.ContentProvider
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.UriMatcher
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.util.Log
 
 class SharedStorageProvider : ContentProvider() {
 
-    var authority = "";
-    var path = "";
-    var uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
-    val CONTENT_URI_CODE = 1
+    private var authority = "";
+    private var path = "";
+    private var uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
 
-//    companion object {
-////        const val AUTHORITY = "group.com.lhbank.profita.shared"
-////        private const val AUTHORITY = BuildConfig.LIBRARY_PACKAGE_NAME + ".provider"
-////        AppConnectSDK.getContentProviderAuthority()
-////        private const val PATH = "app_connect"
-//        const val CONTENT_URI_CODE = 1
-//
-////        private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
-//
-////        init {
-////            uriMatcher.addURI(AUTHORITY, PATH, CONTENT_URI_CODE)
-////        }
-//    }
+    companion object {
+        const val CONTENT_URI_CODE = 1
+    }
 
     private lateinit var databaseHelper: DatabaseHelper
 
     override fun onCreate(): Boolean {
+        Log.d("SharedStorageProvider", "[onCreate] called")
         /// Add URI Matcher
-        authority = "com.example.testlibrary.provider" //AppConnectConfig.getContentProviderAuthority()
+//        Log.d("SharedStorageProvider", "[onCreate] authority 1: com.example.testlibrary.provider")
+//        Log.d("SharedStorageProvider", "[onCreate] authority 2: ${AppConnectConfig.getContentProviderAuthority()}")
+//        Log.d("SharedStorageProvider", "[onCreate] is same : ${"com.example.testlibrary.provider" == AppConnectConfig.getContentProviderAuthority()}")
+        val providerInfo = context!!.packageManager.getProviderInfo(ComponentName(context!!, SharedStorageProvider::class.java), PackageManager.GET_META_DATA)
+        val metaAuthurity = providerInfo.metaData.getString("content_provider_authority")
+        Log.d("SharedStorageProvider", "[onCreate] authority from meta-data: $metaAuthurity")
+
+        authority = metaAuthurity ?: "com.example.testlibrary.provider" //AppConnectConfig.getContentProviderAuthority()
+
         path = "app_connect" //AppConnectConfig.getContentProviderPath()
+        Log.d("SharedStorageProvider", "[onCreate] authority: $authority")
+        Log.d("SharedStorageProvider", "[onCreate] path: $path")
+
         uriMatcher.addURI(authority, path, CONTENT_URI_CODE)
 
+        val testUri = Uri.parse("content://$authority/$path")
+        val match = uriMatcher.match(testUri)
+        Log.d("SharedStorageProvider", "[onCreate] match with $testUri is $match")
         /// Create Database
         databaseHelper = DatabaseHelper(context)
         return true
@@ -49,7 +56,9 @@ class SharedStorageProvider : ContentProvider() {
         selectionArgs: Array<String>?,
         sortOrder: String?
     ): Cursor? {
+        Log.d("SharedStorageProvider", "[query] called with >>>>> uri: $uri, projection: $projection, selection: $selection, selectionArgs: $selectionArgs, sortOrder: $sortOrder")
         val match = uriMatcher.match(uri)
+        Log.d("SharedStorageProvider", "[query] match >>>>> $match")
         val db = databaseHelper.readableDatabase
         val cursor: Cursor?
 
@@ -77,6 +86,7 @@ class SharedStorageProvider : ContentProvider() {
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
+        Log.d("SharedStorageProvider", "[insert] called with >>>>> uri: $uri, values: $values")
         if (values == null) {
             throw AssertionError("Content value must not null")
         }
@@ -96,6 +106,7 @@ class SharedStorageProvider : ContentProvider() {
         }
 
         val match = uriMatcher.match(uri)
+        Log.d("SharedStorageProvider", "[insert] match >>>>> $match")
         val db = databaseHelper.writableDatabase
         val id: Long
 
