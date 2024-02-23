@@ -15,5 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Test Library"
 include(":app")
-include(":MathLibrary")
 include(":AppConnectSdk")
