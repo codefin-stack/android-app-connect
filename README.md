@@ -5,12 +5,7 @@ The AppConnectSDK is a library designed to facilitate communication between Andr
 ## Installation
 To use the AppConnectSDK library in your Android project, follow these steps:
 
-1. Add the library as a dependency in your build.gradle file:
-```gradle
-implementation 'com.example.appconnectsdk:AppConnectSdk:1.0.0'
-```
-
-If you want to use the library locally, follow these additional steps:
+1. Clone the library repository to your local machine:
 
 - Add the library module to your `settings.gradle` file:
 
@@ -39,6 +34,7 @@ If you want to use the library locally, follow these additional steps:
     android:name="com.example.appconnectsdk.SharedStorageProvider"
     android:authorities="com.unicorn.provider"
     android:readPermission="${applicationId}.permission.APP_CONNECT_SDK"
+    android:enabled="true"
     android:exported="true"
   >
     <meta-data
